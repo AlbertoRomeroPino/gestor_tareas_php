@@ -1,6 +1,6 @@
 # He empezado creando el create_db
 
-La creación de la base de datos la e echo con PDO y la e almacenado en /data con el nombre gestor_tareas.db. Tambien la base de datos utilizada va a ser SQlite.
+La creación de la base de datos la he echo con PDO y la e almacenado en /data con el nombre gestor_tareas.db. Tambien la base de datos utilizada va a ser SQlite.
 
 ### Parámetros de Conexión PDO
 
@@ -44,7 +44,7 @@ $db->exec($sqlTareas);
 
 ### Creación del primer usuario
 
-Al ejecutar el create_db.php en mi proyecto no solo crea la base de datos y las entidades sino que tambien crea el primer usuario llamado admin con contraseña 1234. Esto nunca es recomendable hacerlo porque si es filtrado se podria ver tanto el usuario como contraseña en texto plano y adicionamente las contraseñas nunca se deben almacenar en texto plano sino haseadas.
+Al ejecutar el create_db.php en mi proyecto no solo crea la base de datos y las entidades sino que tambien crea el primer usuario llamado admin con contraseña 1234. Esto nunca es recomendable hacerlo porque si es filtrado se podria ver tanto el usuario como contraseña en texto plano y adicionamente las contraseñas nunca se deben almacenar en texto plano sino hasheadas.
 
 #### Paso 1 Comprobación de insertar
 
@@ -85,11 +85,11 @@ Ahora ya teniendo la contraseña en la variable `$passHash` podemos empezar ya a
 ```
 
 Esta parte se divide en 2 una mas compleja que la otra:
-La primer linea lo que realiza es como una promesa. Voy a añadir un usuario y contraseña que todavia no tengo. pero se almacena en `$stmt`.
+La primer linea lo que realiza es como una sentencia preparada. Voy a añadir un usuario y contraseña que todavia no tengo. pero se almacena en `$stmt`.
 
 El significado de las `?` es principalmente donde se van a almacenar los datos que van a ser insertados.
 
-La segunda linea es mas simple `$stmt` ejecuta la consulta que emos creado con anterioridad pero con los datos que le pasas en el array. En este caso le pasas en la primer posición (Nombre) admin y en la segunda posición(Contraseña) `$password` y se ejecuta para almacenarse en la base de datos.
+La segunda linea es mas simple `$stmt` ejecuta la consulta que hemos creado con anterioridad pero con los datos que le pasas en el array. En este caso le pasas en la primer posición (Nombre) admin y en la segunda posición(Contraseña) `$password` y se ejecuta para almacenarse en la base de datos.
 
 #### Paso 3 Pequeñas comprobaciones
 
@@ -109,4 +109,4 @@ echo "✅ Usuario creado por defecto.<br>";
 
 ![1765628121039](image/README/1765628121039.png)
 
-Esto de todas formas en un poryecto serio no se deberia hacer porque seria una bulnerabilidad pero e preferido ponerlo para mostrar cosas si pasa el if
+Esto de todas formas en un poryecto serio no se deberia hacer porque seria una vulnerabilidad pero he preferido ponerlo para mostrar cosas si pasa el if

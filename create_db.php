@@ -1,43 +1,43 @@
 <?php
 try {
 
-     $db = new PDO('sqlite:' . __DIR__ . '/data/gestor_tareas.db');
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  $db = new PDO('sqlite:' . __DIR__ . '/data/gestor_tareas.db');
+  $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-      $sqlUsuarios = "CREATE TABLE IF NOT EXISTS usuarios (
+  $sqlUsuarios = "CREATE TABLE IF NOT EXISTS usuarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL
     )";
-    $db->exec($sqlUsuarios);
+  $db->exec($sqlUsuarios);
 
-      $sqlTareas = "CREATE TABLE IF NOT EXISTS tareas (
+  $sqlTareas = "CREATE TABLE IF NOT EXISTS tareas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         titulo TEXT NOT NULL,
         estado TEXT DEFAULT 'pendiente',
         usuario_id INTEGER,
         FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
     )";
-    $db->exec($sqlTareas);
+  $db->exec($sqlTareas);
 
-    $check = $db->query("SELECT COUNT(*) FROM usuarios")->fetchColumn();
+  $check = $db->query("SELECT COUNT(*) FROM usuarios")->fetchColumn();
 
-    if ($check == 0) {
-        // IMPORTANTE: Nunca guardes contraseñas en texto plano. Usamos password_hash.
-        // Usuario: admin
-        // Contraseña: 1234
-        $passHash = password_hash("1234", PASSWORD_DEFAULT);
-        
-        $stmt = $db->prepare("INSERT INTO usuarios (username, password) VALUES (?, ?)");
-        $stmt->execute(['admin', $passHash]);
-        
-        echo "✅ Usuario creado por defecto.<br>";
-        echo "User: <b>admin</b> <br> Pass: <b>1234</b><br><br>";
-    }
+  if ($check == 0) {
+    // IMPORTANTE: Nunca guardes contraseñas en texto plano. Usamos password_hash.
+    // Usuario: admin
+    // Contraseña: 1234
+    $passHash = password_hash("1234", PASSWORD_DEFAULT);
 
-    echo "✅ Tablas 'usuarios' y 'tareas' listas en SQLite.";
+    $stmt = $db->prepare("INSERT INTO usuarios (username, password) VALUES (?, ?)");
+    $stmt->execute(['admin', $passHash]);
+
+    echo "✅ Usuario creado por defecto.<br>";
+    echo "User: <b>admin</b> <br> Pass: <b>1234</b><br><br>";
+  }
+
+  echo "✅ Tablas 'usuarios' y 'tareas' listas en SQLite.";
 
 } catch (PDOException $e) {
-    echo "❌ Error: " . $e->getMessage();
+  echo "❌ Error: " . $e->getMessage();
 }
 ?>
