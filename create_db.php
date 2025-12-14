@@ -12,12 +12,13 @@ try {
   $db->exec($sqlUsuarios);
 
   $sqlTareas = "CREATE TABLE IF NOT EXISTS tareas (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        titulo TEXT NOT NULL,
-        estado TEXT DEFAULT 'pendiente',
-        usuario_id INTEGER,
-        FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
-    )";
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    titulo TEXT NOT NULL,
+    descripcion TEXT NOT NULL,
+    estado TEXT DEFAULT 'pendiente',
+    usuario_id INTEGER,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+)";
   $db->exec($sqlTareas);
 
   $check = $db->query("SELECT COUNT(*) FROM usuarios")->fetchColumn();

@@ -34,7 +34,7 @@ class User
         try {
             $stmt->execute([
                 ':username' => $user,
-                ':password' => $pass
+                ':password' => $passHash
             ]);
             return true;
         } catch (PDOException $e) {
@@ -42,8 +42,4 @@ class User
         }
     }
 }
-
-
-
-
 ?>
