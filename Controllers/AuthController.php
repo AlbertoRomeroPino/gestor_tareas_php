@@ -43,11 +43,52 @@ class AuthController
         }
     }
 
+    public function logout()
+    {
+        session_destroy();
 
+        if (isset($_COOKIE['user_login'])) {
+            setcookie('user_login', '', time() - 3600, "/");
+        }
 
+        header("Location: ../Views/auth/login.php");
+        exit();
+    }
 
+    public function checkCookie()
+    {
+        if (isset($_SESSION['user_id'])) {
+            return;
+        }
 
+        if (isset($_COOKIE['user_login'])) {
+            $username = $_COOKIE['user_login'];
+            $user = $this->userModel->findByUsername($username);
 
+            if ($user) {
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['username'] = $user['username'];
+            }
+        }
+    }
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $auth = new AuthController();
+
+    if (isset($_POST['action']) && $_POST['action'] === 'login') {
+        $remembre = isset($_POST['remember']);
+
+        $auth->login($_POST['username'], $_POST['password'], $remembe);
+    }
+
+    if (isset($_POST['action']) && $_POST['action'] === 'register') {
+        $auth->register($_POST['username'], $_POST['password']);
+    }
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    $auth = new AuthController();
+    $auth->logout();
+}
 ?>

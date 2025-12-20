@@ -128,6 +128,8 @@ Esta clase gestiona la conexión a la base de datos SQLite utilizando PDO. Se im
 
 # ./Models/Tarea.php
 
+La entidad usuario es mas simple a esta lo unico que tiene nuevo es password_hash que es para encriptar la contraseña
+
 Esta sección aborda la arquitectura de la clase en tres niveles: atributos, funciones y una explicación práctica del manejo de consultas SQL.
 
 ### Parte 1 Atributos
@@ -188,3 +190,182 @@ Los pasos que **he realizado** para ejecutar un crear tarea:
 3. **Control de Excepciones:** Se inicia un bloque `try-catch` para manejar cualquier error crítico durante la comunicación con la base de datos.
 4. **Ejecución y Vinculación:** Se llama a `execute()` pasando un array que vincula los valores reales con los marcadores definidos anteriormente.
 5. **Retorno de Estado:** La función finaliza devolviendo `true` si la inserción tuvo éxito o `false` (y registrando el error) si falló.
+
+# ./controller/AuthController.php
+
+```php
+session_start();
+require_once __DIR__ . '/../Models/User.php';
+```
+
+`session_start();` Crea o recupera una memoria temporal en el servidor para el usuario actual. Sin esta la web olvidaria quien eres y perderia tus datos cada vez que cambias de pagina.
+
+`require_once __DIR__ . '/../Models/User.php'` importamos el modelo user para poder hablar con la base de datos
+
+Posterior a esto ya empieza la clase `AuthController`:
+
+**Atributos de la Entidad y Contructor**
+
+`$userModel`:  Es la entidad usuario que se conecta con la clase. Y el constructor es darle el valor a esta
+
+**Login**
+
+```php
+public function login($username, $password, $remember = false) // 1
+    {
+        $user = $this->userModel->findByUsername($username);
+
+        if ($user && password_verify($password, $user['password'])) {
+            // A. Guardamos sesión (Memoria RAM del servidor)
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['username'] = $user['username'];
+
+            // B. Manejo de Cookie (Disco Duro del usuario)
+            if ($remember) { // 2
+                // time() es la hora actual en segundos.
+                // 86400 son los segundos de un día.
+                // Multiplicado por 30 = 1 mes de duración.
+                setcookie('user_login', $user['username'], time() + (86400 * 30), "/"); // 3
+            }
+
+            header("Location: ../Views/tablero.php");
+            exit();
+        } 
+        // ... (else error)
+    }
+```
+
+Primero recibe 3 cosas:
+
+* Nombre de usuario
+* Contraseña
+* remember (Cookie para guardar durante un tiempo el usuario )
+
+y despues de recibir todo creamos un nuevo usuario buscando desde el nombre de usuario que se inserta.
+
+Si el paso anterior no existiera el usuario daria un mensaje de error pero en cambio si existe el nombre de usuario y al mismo tiempo a puesto bien la contraseña entraria en el if.
+
+Una vez dentro de la primera comprobación almacenamos el id de usuario y el nombre de usuario para la sesion y por ultimo antes de entrar a la pagina comprueba que si esta a true remember cree una cookie para mantener almacenada la sesion de usuario para que se mantenga abierta durante 1 mes.
+
+**Logout**
+
+```php
+public function logout()
+    {
+        // 1. Borramos la sesión del servidor
+        session_destroy(); 
+
+        // 2. Borramos la cookie del navegador
+        if (isset($_COOKIE['user_login'])) {
+            setcookie('user_login', '', time() - 3600, "/"); // 1
+        }
+
+        header("Location: ../Views/auth/login.php");
+        exit();
+    }
+```
+
+Esto es mucho mas simple que el login, empezamos destruyendo la sesion que teniamos con la información del usuario. Luego de borrar la sesion porsi en el caso de haber querido que se mantubiese la sesion abierta la borramos para que no de problemas y devolvemos a la pantalla del login
+
+**checkCookie**
+
+```php
+public function checkCookie()
+    {
+        // 1. ¿Ya estás dentro? Si sí, no hago nada.
+        if (isset($_SESSION['user_id'])) {
+            return;
+        }
+
+        // 2. No estás dentro, pero... ¿tienes la etiqueta "user_login"?
+        if (isset($_COOKIE['user_login'])) {
+            $username = $_COOKIE['user_login'];
+          
+            // Busco en la BD si ese usuario existe
+            $user = $this->userModel->findByUsername($username);
+          
+            if ($user) {
+                // 3. ¡Bingo! Te restauro la sesión automáticamente
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['username'] = $user['username'];
+            }
+        }
+    }
+```
+
+En esta función lo primero que realizamos es comprobar si esta ya hay una sesion activa en memoria termina la función inmediatamente.
+
+El segundo if verifica si existe la cookie `user_login`. Si existe, recuperamos el nombre de usuario que hay dentro de ella y le pedimos al Modelo que busque en la Base de Datos los datos completos de ese usuario.
+
+El tercer if  lo que realiza es crear las sesiones o igualarlas para asi tener la información almacenada
+
+**Router Artesanal**
+
+```php
+// BLOQUE A: Peticiones POST (Datos que viajan ocultos: Login y Registro)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $auth = new AuthController();
+  
+    // CASO 1: LOGIN
+    if (isset($_POST['action']) && $_POST['action'] === 'login') {
+        // Truco del Checkbox
+        $remember = isset($_POST['remember']);
+  
+        $auth->login($_POST['username'], $_POST['password'], $remember);
+    }
+  
+    // CASO 2: REGISTRO
+    if (isset($_POST['action']) && $_POST['action'] === 'register') {
+        $auth->register($_POST['username'], $_POST['password']);
+    }
+}
+
+// BLOQUE B: Peticiones GET (Enlaces visibles: Logout)
+if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    $auth = new AuthController();
+    $auth->logout();
+}
+```
+
+El primer if lo que realiza es comprobar que los datos vienen empaquetados de forma segura desde el formulario y si es correcto crea una variable AuthController
+
+```php
+if (isset($_POST['action']) && $_POST['action'] === 'login') {
+        // ... Lógica de Login
+    }
+
+    if (isset($_POST['action']) && $_POST['action'] === 'register') {
+       // ... Lógica de Registro
+    }
+```
+
+Como el formulario envia todo junto, PHP necesita saber qué botón pulsaste 
+
+* Si el valor es `'login'`, llama a la función de entrar.
+* Si el valor es `'register'`, llama a la función de registrarse.
+
+```php
+if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    $auth = new AuthController();
+    $auth->logout();
+}
+```
+
+Con este codigo lo unico que realiza es un logout
+
+
+
+# Views/auth/login
+
+```php
+<?php if (isset($_GET['error'])): ?>
+                    <span class="error-text">
+                        <?php
+                            if ($_GET['error'] == 'credenciales_incorrectas') echo "Datos inválidos";
+                            if ($_GET['error'] == 'usuario_existe') echo "El usuario ya existe";
+                        ?>
+                    </span>
+                <?php endif; ?>
+```
+
+PHP revisa la URL del navegador. Si el controlador te redirigió con algo como `?error=usuario_existe`, este apartado se activa.
