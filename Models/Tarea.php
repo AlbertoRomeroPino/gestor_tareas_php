@@ -15,12 +15,14 @@ class Tareas
         $this->db = Database::conectar();
     }
 
-    public function findAll()
-    {
-        $sql = "SELECT * FROM tareas";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    public function findAllByUserId($usuario_id)
+{
+    // Añadimos ORDER BY id DESC para que las nuevas salgan primero
+    $sql = "SELECT * FROM tareas WHERE usuario_id = :usuario_id ORDER BY id DESC";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([':usuario_id' => $usuario_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
     public function findById($id)
     {

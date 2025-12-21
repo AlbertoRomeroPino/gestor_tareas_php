@@ -1,0 +1,153 @@
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+
+/* --- 1. CONFIGURACIÓN DEL TABLERO --- */
+body {
+    background-color: #f0f2f5; 
+    /* Opcional: Si quieres textura de corcho, descomenta la siguiente línea y pon una url */
+    /* background-image: url('ruta-a-tu-imagen-corcho.jpg'); */
+    margin: 0;
+    font-family: 'Patrick Hand', cursive, sans-serif;
+}
+
+.board-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px 40px;
+}
+
+/* --- TOOLBAR --- */
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255,255,255,0.9);
+    padding: 15px 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    margin-bottom: 40px;
+    margin-top: 20px;
+}
+
+.search-box { position: relative; width: 300px; }
+
+.search-box input {
+    width: 100%;
+    padding: 12px 15px 12px 40px;
+    border-radius: 25px;
+    border: 2px solid #e1e1e1;
+    font-family: 'Montserrat', sans-serif;
+    outline: none;
+    transition: all 0.3s ease;
+}
+.search-box input:focus { border-color: #0077b6; box-shadow: 0 0 5px rgba(0,119,182,0.2); }
+
+.btn-new-note {
+    background: #0077b6;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 25px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-new-note:hover { background-color: #005f91; transform: scale(1.05); }
+
+/* --- GRID DE NOTAS --- */
+.corkboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 40px;
+    padding: 10px;
+}
+
+/* --- ESTILO POST-IT --- */
+.postit {
+    background-color: #fdfd86;
+    padding: 25px 20px 20px 20px;
+    min-height: 250px;
+    position: relative;
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.15);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, z-index 0s;
+    display: flex;
+    flex-direction: column;
+    color: #333;
+    font-size: 1.1rem;
+    cursor: default;
+}
+
+/* Rotaciones y paleta aleatoria para realismo */
+.postit:nth-child(even) { transform: rotate(2deg); background-color: #d1f7c4; }
+.postit:nth-child(3n) { transform: rotate(-2deg); background-color: #ffccbc; }
+.postit:nth-child(5n) { transform: rotate(1deg); background-color: #b3e5fc; }
+.postit:nth-child(7n) { transform: rotate(-1deg); background-color: #fff9c4; }
+
+/* Hover: se endereza y destaca */
+.postit:hover {
+    transform: scale(1.05) rotate(0deg) !important;
+    box-shadow: 10px 10px 25px rgba(0,0,0,0.25);
+    z-index: 10;
+}
+
+/* Chincheta */
+.pin {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #d32f2f;
+    font-size: 1.2rem;
+    text-shadow: 2px 2px 2px rgba(0,0,0,0.3);
+    z-index: 5;
+}
+
+.note-title {
+    font-size: 1.6rem;
+    margin: 10px 0 15px 0;
+    border-bottom: 2px dashed rgba(0,0,0,0.1);
+    padding-bottom: 5px;
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+.note-body { flex-grow:1; font-size:1.2rem; line-height:1.4; white-space:pre-wrap; }
+
+.note-footer {
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:15px; padding-top:10px; border-top:1px solid rgba(0,0,0,0.05);
+    font-size:0.9rem; color:#555; font-family:'Montserrat',sans-serif;
+}
+
+/* Botones */
+.actions a { text-decoration:none; margin-left:10px; font-size:1.2rem; transition:color 0.2s; }
+.btn-icon.delete { color:#888; } .btn-icon.delete:hover { color:#d32f2f; transform:scale(1.2); }
+.btn-icon.check { color:#888; } .btn-icon.check:hover { color:#2e7d32; transform:scale(1.2); }
+
+/* Completadas */
+.postit.done { opacity:0.6; background-color:#e0e0e0 !important; text-decoration:line-through; }
+
+/* FORMULARIO FLOTANTE */
+.postit-form {
+    position: fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+    background-color:#fff176; padding:30px; width:350px; box-shadow:0 20px 50px rgba(0,0,0,0.3);
+    z-index:1000; border-radius:2px; border-bottom-right-radius:40px 10px;
+}
+.postit-form input, .postit-form textarea {
+    width:100%; background:transparent; border:none; border-bottom:2px solid #333; margin-bottom:20px;
+    font-family:'Patrick Hand', cursive; font-size:1.3rem; color:#333; outline:none;
+}
+.form-buttons { display:flex; justify-content:space-between; }
+.btn-save { background:#333; color:#fff; border:none; padding:8px 20px; cursor:pointer; box-shadow:2px 2px 5px rgba(0,0,0,0.2); }
+.btn-cancel { background:transparent; color:#d32f2f; border:2px solid #d32f2f; padding:8px 20px; cursor:pointer; }
+
+/* MENSAJE VACÍO */
+.empty-message { grid-column:1 / -1; text-align:center; color:#aaa; font-size:2rem; margin-top:50px; }

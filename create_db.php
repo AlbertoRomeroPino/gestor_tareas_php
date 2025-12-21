@@ -17,6 +17,7 @@ try {
     descripcion TEXT NOT NULL,
     estado TEXT DEFAULT 'pendiente',
     usuario_id INTEGER,
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 )";
   $db->exec($sqlTareas);
