@@ -48,7 +48,7 @@ class TareasController {
     public function agregar() {
         // Validación básica
         if (empty($_POST['titulo'])) {
-            header("Location: ../Views/tablero.php?error=titulo_vacio");
+            header("Location: ../Views/layouts/tablero.php?error=titulo_vacio");
             exit();
         }
 
@@ -60,7 +60,7 @@ class TareasController {
         $tareaModel = new Tareas();
         $tareaModel->createTarea($titulo, $estado, $descripcion, $usuario_id);
 
-        header("Location: ../Views/tablero.php");
+        header("Location: ../Views/layouts/tablero.php");
         exit();
     }
 
@@ -77,10 +77,10 @@ class TareasController {
             
             // Si es dueño, procedemos a borrar
             $tareaModel->deleteTarea($id);
-            header("Location: ../Views/tablero.php?msg=tarea_eliminada");
+            header("Location: ../Views/layouts/tablero.php?msg=tarea_eliminada");
         } else {
             // Si no es dueño o no existe, lo echamos (Seguridad)
-            header("Location: ../Views/tablero.php?error=acceso_denegado");
+            header("Location: ../Views/layouts/tablero.php?error=acceso_denegado");
         }
         exit();
     }
@@ -101,9 +101,9 @@ class TareasController {
             $estado = isset($_POST['estado']) ? 1 : 0; 
 
             $tareaModel->updateTarea($id, $titulo, $estado, $descripcion);
-            header("Location: ../Views/tablero.php?msg=tarea_actualizada");
+            header("Location: ../Views/layouts/tablero.php?msg=tarea_actualizada");
         } else {
-            header("Location: ../Views/tablero.php?error=acceso_denegado");
+            header("Location: ../Views/layouts/tablero.php?error=acceso_denegado");
         }
         exit();
     }

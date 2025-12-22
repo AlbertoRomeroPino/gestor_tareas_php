@@ -39,7 +39,7 @@ if ($baseUrl === '\\' || $baseUrl === '.') { $baseUrl = ''; }
                 <li><a href="<?php echo $baseUrl; ?>/index.php">Inicio</a></li>
                 
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    <li><a href="<?php echo $baseUrl; ?>/Views/tablero.php">Mi Tablero</a></li>
+                    <li><a href="<?php echo $baseUrl; ?>/Views/layouts/tablero.php">Mi Tablero</a></li>
                     <li>
                         <a href="<?php echo $baseUrl; ?>/Controllers/AuthController.php?action=logout" class="btn-action logout">
                             Cerrar Sesión

@@ -24,7 +24,7 @@ class AuthController
                 setcookie('user_login', $user['username'], time() + (86400 * 30), "/");
             }
 
-            header("Location: ../Views/tablero.php");
+            header("Location: ../Views/layouts/tablero.php");
             exit();
         } else {
             header("Location: ../Views/auth/login.php?error=credenciales_incorrectas");

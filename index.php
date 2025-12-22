@@ -16,7 +16,7 @@ $auth->checkCookie();
 // 4. Lógica de redirección (El filtro)
 if (isset($_SESSION['user_id'])) {
     // Si la sesión existe, lo mandamos a la vista del tablero
-    header("Location: Views/tablero.php");
+    header("Location: Views/layouts/tablero.php");
 } else {
     // Si no hay sesión, lo mandamos a la pantalla de acceso
     header("Location: Views/auth/login.php");
