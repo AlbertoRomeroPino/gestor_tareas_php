@@ -18,7 +18,6 @@ if ($baseUrl === '\\' || $baseUrl === '.') { $baseUrl = ''; }
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,800" rel="stylesheet">
     
     <link rel="stylesheet" href="<?php echo $baseUrl; ?>/public/CSS/header.css">
-    <link rel="stylesheet" href="<?php echo $baseUrl; ?>/public/CSS/login.css">
 
     <?php if (isset($extraCss) && !empty($extraCss)): ?>
         <link rel="stylesheet" href="<?php echo $baseUrl . $extraCss; ?>">

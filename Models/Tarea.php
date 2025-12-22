@@ -9,6 +9,7 @@ class Tareas
     private $descripcion;
     private $estado;
     private $usuario_id;
+    private $fecha_creacion;
 
     public function __construct()
     {

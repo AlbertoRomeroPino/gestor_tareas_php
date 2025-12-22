@@ -10,13 +10,15 @@
 body {
     font-family: "Montserrat", sans-serif;
     background-color: #f0f2f5;
-    padding-top: 80px; /* Espacio para que el header fijo no tape el contenido */
-    display: block;
+    padding-top: 80px; /* Espacio para el header fijo */
+    color: #333;
+    /* Importante: NO ponemos display: flex aquí para no romper el tablero */
+    display: block; 
 }
 
 /* --- ESTILOS DEL HEADER --- */
 .site-header {
-    background-color: #1a1a1a; /* Fondo oscuro del boceto */
+    background-color: #1a1a1a;
     height: 80px;
     width: 100%;
     display: flex;
@@ -31,7 +33,7 @@ body {
     border-bottom: 2px solid #333;
 }
 
-/* Contenedor del Logo (Espacio para el murciélago) */
+/* Logo Murciélago */
 .logo-container {
     width: 120px;
     height: 60px;
@@ -55,6 +57,7 @@ body {
     list-style: none;
     gap: 30px;
     align-items: center;
+    margin: 0; /* Reset específico */
 }
 
 .nav-links li a {
@@ -71,7 +74,7 @@ body {
     color: #a29bfe;
 }
 
-/* Botón de acción (Morado como en Pruebas.html) */
+/* Botones del Header */
 .btn-action {
     padding: 10px 25px;
     background-color: #6c5ce7;
@@ -88,7 +91,7 @@ body {
 }
 
 .btn-action.logout {
-    background-color: #e53e3e; /* Color rojo para cerrar sesión */
+    background-color: #e53e3e;
 }
 
 .bat {

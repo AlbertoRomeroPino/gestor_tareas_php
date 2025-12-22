@@ -1,26 +1,28 @@
 <?php
+// index.php (En la raíz del proyecto)
 
+// 1. Iniciamos la sesión
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// 1. Iniciamos la sesión para poder leer si el usuario ya entró
-session_start();
-
-// 2. Importamos el controlador para usar la lógica de cookies (Autologin)
+// 2. Importamos el controlador
+// Usamos __DIR__ para que la ruta sea absoluta y no falle
 require_once __DIR__ . '/Controllers/AuthController.php';
 
 $auth = new AuthController();
 
-// 3. Verificamos si existe la cookie "user_login" para loguearlo automáticamente
-// Esta es la función que explicamos que dura 30 días
+// 3. Verificamos la cookie "recordarme"
 $auth->checkCookie();
 
-// 4. Lógica de redirección (El filtro)
+// 4. Lógica de redirección
 if (isset($_SESSION['user_id'])) {
-    // Si la sesión existe, lo mandamos a la vista del tablero
+    // Si la sesión existe, vamos al tablero
+    // Asegúrate de que esta ruta sea correcta según tu estructura de carpetas
     header("Location: Views/layouts/tablero.php");
 } else {
-    // Si no hay sesión, lo mandamos a la pantalla de acceso
+    // Si no hay sesión, vamos al login
     header("Location: Views/auth/login.php");
 }
-
-// Es buena práctica poner exit() después de un header Location
 exit();
+?>

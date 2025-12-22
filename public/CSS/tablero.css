@@ -1,295 +1,202 @@
-@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
-
-/* --- 1. CONFIGURACIÓN GENERAL --- */
-body {
-    background-color: #f0f2f5;
-    /* Si tienes una imagen de corcho, descomenta la siguiente línea */
-    /* background-image: url('../img/cork.jpg'); */
-    font-family: 'Patrick Hand', cursive, sans-serif;
-    margin: 0;
-    overflow-x: hidden; /* Evita scroll horizontal indeseado */
-}
-
+/* --- CONFIGURACIÓN GENERAL DEL TABLERO --- */
 .board-container {
-    max-width: 1200px;
+    padding: 30px;
+    font-family: 'Patrick Hand', cursive, sans-serif;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 20px;
 }
 
-/* --- 2. BARRA DE HERRAMIENTAS (CENTRADA) --- */
+/* BARRA SUPERIOR (Buscador y Botón) */
 .toolbar {
     display: flex;
-    justify-content: center; /* CENTRADO HORIZONTAL */
+    justify-content: space-between;
     align-items: center;
-    gap: 20px; /* Espacio entre buscador y botón */
-    
-    background: rgba(255, 255, 255, 0.9);
-    padding: 15px 30px;
-    border-radius: 50px; /* Bordes muy redondos */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    
-    margin: 20px auto 50px auto; /* Centrado del bloque y margen abajo */
-    max-width: 700px; /* Ancho máximo limitado para que quede compacto */
-    border: 1px solid #fff;
+    margin-bottom: 40px;
+    padding: 0 10px;
 }
 
 .search-box {
-    position: relative;
-    width: 60%; /* El buscador ocupa el 60% de la barra */
+    background: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    width: 300px;
 }
 
 .search-box input {
-    width: 100%;
-    padding: 12px 15px 12px 45px;
-    border-radius: 25px;
-    border: 2px solid #e0e0e0;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.95rem;
+    border: none;
     outline: none;
-    transition: 0.3s;
-    background-color: #f9f9f9;
-}
-
-.search-box input:focus {
-    border-color: #0077b6;
-    background-color: #fff;
-    box-shadow: 0 0 0 4px rgba(0,119,182,0.1);
-}
-
-.search-box i {
-    position: absolute;
-    left: 18px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #aaa;
+    margin-left: 10px;
+    font-family: inherit;
     font-size: 1.1rem;
+    width: 100%;
 }
 
 .btn-new-note {
-    background: #0077b6;
+    background-color: #0077b6;
     color: white;
     border: none;
-    padding: 12px 25px;
+    padding: 10px 20px;
     border-radius: 25px;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 700;
-    font-size: 0.9rem;
+    font-family: 'Montserrat', sans-serif; /* Fuente del sistema para el botón */
+    font-weight: bold;
     cursor: pointer;
-    transition: transform 0.2s, background 0.2s;
+    transition: background 0.3s;
     display: flex;
     align-items: center;
     gap: 8px;
-    white-space: nowrap; /* Evita que el texto baje de línea */
 }
 
 .btn-new-note:hover {
-    background-color: #005f91;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,119,182,0.3);
+    background-color: #023e8a;
 }
 
-/* --- 3. REJILLA DE NOTAS (GRID 3 COLUMNAS) --- */
+/* --- ZONA DE POST-ITS (FLEXBOX HORIZONTAL) --- */
 .corkboard {
-    display: grid;
-    /* CLAVE: Repetir exactamente 3 columnas */
-    grid-template-columns: repeat(3, 1fr); 
-    gap: 40px; /* Espacio generoso entre notas */
+    display: flex !important;       /* Fuerza Flexbox */
+    flex-direction: row !important; /* Fuerza dirección HORIZONTAL */
+    flex-wrap: wrap !important;     /* Permite saltar de línea */
+    gap: 30px;                      /* Espacio entre notas */
+    justify-content: flex-start;
     padding: 10px;
 }
 
-/* RESPONSIVE: Adaptación para móviles y tablets */
-@media (max-width: 950px) {
-    .corkboard { grid-template-columns: repeat(2, 1fr); } /* 2 columnas en tablets */
-    .toolbar { flex-direction: column; border-radius: 20px; gap: 15px; }
-    .search-box { width: 100%; }
-    .btn-new-note { width: 100%; justify-content: center; }
-}
-
-@media (max-width: 600px) {
-    .corkboard { grid-template-columns: 1fr; } /* 1 columna en móviles */
-}
-
-/* --- 4. ESTILO POST-IT CUADRADO --- */
+/* --- ESTILO DE LA NOTA --- */
 .postit {
-    background-color: #fdfd86; /* Amarillo base */
-    padding: 25px 25px 15px 25px;
-    
-    /* PROPIEDAD MÁGICA PARA CUADRADOS */
-    aspect-ratio: 1 / 1; 
-    
+    background-color: #feff9c;      /* Amarillo post-it */
+    width: 280px !important;        /* ANCHO FIJO OBLIGATORIO */
+    min-height: 280px;
+    padding: 25px 20px;
     position: relative;
-    box-shadow: 5px 5px 15px rgba(0,0,0,0.15); /* Sombra suave */
-    transition: transform 0.25s ease, box-shadow 0.25s ease, z-index 0s;
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.15);
     display: flex;
     flex-direction: column;
-    color: #2c3e50;
-    font-size: 1.2rem;
-    overflow: hidden; /* Importante para que nada se salga del cuadrado */
+    
+    /* Efecto papel */
+    transform: rotate(-1deg);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-/* Variaciones de Color y Rotación */
-.postit:nth-child(even) { transform: rotate(2deg); background-color: #dcedc8; /* Verde */ }
-.postit:nth-child(3n) { transform: rotate(-2deg); background-color: #ffccbc; /* Naranja */ }
-.postit:nth-child(5n) { transform: rotate(1deg); background-color: #b3e5fc; /* Azul */ }
-.postit:nth-child(7n) { transform: rotate(-1deg); background-color: #fff9c4; /* Amarillo claro */ }
+/* Notas Pares (Azuladas y rotadas al otro lado) */
+.postit:nth-child(even) {
+    background-color: #caf0f8;
+    transform: rotate(1.5deg);
+}
 
-/* Efecto Hover (Levantar nota) */
 .postit:hover {
-    transform: scale(1.05) rotate(0deg) !important;
-    box-shadow: 15px 15px 30px rgba(0,0,0,0.25);
-    z-index: 100;
-    cursor: default;
+    transform: scale(1.05) rotate(0deg);
+    z-index: 10;
+    box-shadow: 10px 10px 25px rgba(0,0,0,0.25);
 }
 
-/* La Chincheta */
+/* Elementos internos de la nota */
 .pin {
     position: absolute;
-    top: -12px;
+    top: -10px;
     left: 50%;
     transform: translateX(-50%);
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: radial-gradient(#e53935 30%, #b71c1c 100%);
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-    z-index: 10;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: rgba(0,0,0,0.3); /* Color sombra icono */
+    color: #e63946;
+    font-size: 1.4rem;
+    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
 }
-.pin i { font-size: 0.8rem; } /* Icono dentro de la chincheta */
 
-/* --- DETALLES INTERNOS DE LA NOTA --- */
 .note-title {
     font-size: 1.5rem;
-    margin: 15px 0 10px 0;
-    border-bottom: 2px dashed rgba(0,0,0,0.1);
-    padding-bottom: 5px;
-    font-weight: bold;
-    text-align: center;
-    line-height: 1.1;
+    margin: 10px 0;
+    border-bottom: 1px dashed rgba(0,0,0,0.1);
+    color: #333;
+    word-break: break-word;
 }
 
 .note-body {
     flex-grow: 1;
-    font-size: 1.15rem;
+    font-size: 1.2rem;
+    color: #444;
     line-height: 1.4;
-    white-space: pre-wrap; /* Respeta enters */
-    overflow-y: auto; /* Scroll si hay mucho texto */
-    padding-right: 5px;
-    margin-bottom: 10px;
+    word-break: break-word;
 }
-
-/* Scrollbar fina para la nota */
-.note-body::-webkit-scrollbar { width: 5px; }
-.note-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
-.note-body::-webkit-scrollbar-track { background: transparent; }
 
 .note-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid rgba(0,0,0,0.05);
+    margin-top: 15px;
     padding-top: 10px;
-    font-size: 0.85rem;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    font-size: 0.9rem;
     color: #666;
-    font-family: 'Montserrat', sans-serif;
 }
 
 /* Iconos de acción */
-.actions { display: flex; gap: 10px; }
-.btn-icon { text-decoration: none; font-size: 1.1rem; transition: 0.2s; color: #555; opacity: 0.7; }
-.btn-icon:hover { opacity: 1; transform: scale(1.2); }
-
-.btn-icon.edit:hover { color: #0077b6; }
-.btn-icon.delete:hover { color: #d32f2f; }
-.btn-icon.check:hover { color: #2e7d32; }
-
-/* Estilo para tareas completadas */
-.postit.done {
-    background-color: #e0e0e0 !important;
-    text-decoration: line-through;
-    opacity: 0.7;
-    transform: rotate(0deg) !important;
+.actions a {
+    color: #555;
+    margin-left: 10px;
+    text-decoration: none;
+    transition: color 0.2s;
 }
 
-/* --- 5. FORMULARIO FLOTANTE (MODAL) --- */
-.postit-form {
+.actions a:hover { color: #000; }
+.actions .delete:hover { color: #e63946; }
+
+/* --- OVERLAY DEL FORMULARIO --- */
+.postit-form-overlay {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #fff59d;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000; /* Por encima del header */
+}
+
+.postit-form-content {
+    background: #fff9c4;
     padding: 30px;
-    width: 350px;
-    /* Forzamos que el formulario también sea cuadrado */
-    aspect-ratio: 1 / 1; 
-    box-shadow: 0 25px 50px rgba(0,0,0,0.4);
-    z-index: 2000;
+    width: 400px;
     border-radius: 2px;
-    border-bottom-right-radius: 60px 15px; /* Efecto hoja doblada */
-    display: flex;
-    flex-direction: column;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
 }
 
-.postit-form form {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-.postit-form input, .postit-form textarea {
+.postit-form-content input, 
+.postit-form-content textarea {
     width: 100%;
-    background: transparent;
     border: none;
-    border-bottom: 2px solid #666;
-    margin-bottom: 15px;
-    font-family: 'Patrick Hand', cursive;
-    font-size: 1.3rem;
-    color: #222;
-    outline: none;
-    resize: none;
+    background: transparent;
+    border-bottom: 2px solid rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    font-family: inherit;
+    font-size: 1.2rem;
+    padding: 5px;
 }
 
-.postit-form textarea {
-    flex-grow: 1; /* Ocupa el espacio restante */
+.postit-form-content input:focus, 
+.postit-form-content textarea:focus {
+    outline: none;
+    border-bottom-color: #555;
 }
 
 .form-buttons {
     display: flex;
-    justify-content: space-between;
-    margin-top: auto;
+    gap: 10px;
+    justify-content: flex-end;
 }
 
 .btn-save {
-    background: #222;
-    color: #fff;
+    background: #4caf50;
+    color: white;
     border: none;
-    padding: 8px 20px;
-    font-family: 'Patrick Hand', cursive;
-    font-size: 1.1rem;
+    padding: 8px 15px;
     cursor: pointer;
-    box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+    font-weight: bold;
 }
-.btn-save:hover { background: #000; }
 
 .btn-cancel {
-    background: transparent;
-    color: #d32f2f;
-    border: 2px solid #d32f2f;
-    padding: 6px 15px;
-    font-family: 'Patrick Hand', cursive;
-    font-size: 1.1rem;
+    background: #ef5350;
+    color: white;
+    border: none;
+    padding: 8px 15px;
     cursor: pointer;
-}
-.btn-cancel:hover { background: #d32f2f; color: #fff; }
-
-/* MENSAJE VACÍO */
-.empty-message {
-    grid-column: 1 / -1;
-    text-align: center;
-    color: #999;
-    font-family: 'Montserrat', sans-serif;
-    margin-top: 50px;
+    font-weight: bold;
 }

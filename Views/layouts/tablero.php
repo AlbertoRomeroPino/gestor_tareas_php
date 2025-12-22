@@ -5,14 +5,18 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Carga el controlador
+// --- CONTROLADOR ---
+// Ajusta la ruta si es necesario según tus carpetas, esto sube 2 niveles
 require_once __DIR__ . '/../../Controllers/TareaController.php';
 $controller = new TareasController();
 $misTareas = $controller->index();
 
+// --- CONFIGURACIÓN DE LA PÁGINA ---
 $pageTitle = "Mi Tablero";
-// Definimos el CSS extra para que header.php lo cargue
-$extraCss = '<link rel="stylesheet" href="../../public/CSS/tablero.css">';
+
+// AQUÍ ESTÁ LA CLAVE: Cargamos solo el CSS del tablero
+$extraCss = '/public/CSS/tablero.css';
+
 include __DIR__ . '/header.php'; 
 ?>
 
@@ -23,7 +27,7 @@ include __DIR__ . '/header.php';
     <div class="toolbar">
         <div class="search-box">
             <i class="fas fa-search"></i>
-            <input type="text" id="buscador" placeholder="Buscar en mis notas..." onkeyup="filtrarTareas()">
+            <input type="text" id="buscador" placeholder="Buscar nota..." onkeyup="filtrarTareas()">
         </div>
         
         <button class="btn-new-note" onclick="nuevaTarea()">
@@ -31,29 +35,29 @@ include __DIR__ . '/header.php';
         </button>
     </div>
 
-    <div id="form-card" class="postit-form" style="display:none;">
-        <form action="../../Controllers/TareaController.php" method="POST" id="formTarea">
-            
-            <input type="hidden" name="action" id="formAction" value="crear">
-            
-            <input type="hidden" name="id" id="taskId" value="">
+    <div id="form-card" class="postit-form-overlay" style="display:none;">
+        <div class="postit-form-content">
+            <form action="../../Controllers/TareaController.php" method="POST" id="formTarea">
+                <input type="hidden" name="action" id="formAction" value="crear">
+                <input type="hidden" name="id" id="taskId" value="">
 
-            <input type="text" name="titulo" id="taskTitle" placeholder="Título de la tarea..." required autocomplete="off">
-            <textarea name="descripcion" id="taskDesc" placeholder="Detalles (opcional)..." rows="4"></textarea>
-            
-            <div class="form-buttons">
-                <button type="submit" class="btn-save" id="btnSubmit">Pegar Nota</button>
-                <button type="button" class="btn-cancel" onclick="cerrarFormulario()">Cancelar</button>
-            </div>
-        </form>
+                <input type="text" name="titulo" id="taskTitle" placeholder="Título..." required autocomplete="off">
+                <textarea name="descripcion" id="taskDesc" placeholder="Escribe los detalles aquí..." rows="4"></textarea>
+                
+                <div class="form-buttons">
+                    <button type="submit" class="btn-save" id="btnSubmit">Pegar Nota</button>
+                    <button type="button" class="btn-cancel" onclick="cerrarFormulario()">Cancelar</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div class="corkboard" id="listaTareas">
         
-        <?php if (count($misTareas) > 0): ?>
+        <?php if (!empty($misTareas)): ?>
             <?php foreach ($misTareas as $tarea): ?>
                 
-                <div class="postit <?php echo $tarea['estado'] == 1 ? 'done' : ''; ?>">
+                <div class="postit">
                     <div class="pin"><i class="fas fa-thumbtack"></i></div>
                     
                     <h2 class="note-title"><?php echo htmlspecialchars($tarea['titulo']); ?></h2>
@@ -68,12 +72,8 @@ include __DIR__ . '/header.php';
                         </span>
                         
                         <div class="actions">
-                            <a href="#" class="btn-icon edit" 
-                               onclick="editarTarea(
-                                   '<?php echo $tarea['id']; ?>', 
-                                   '<?php echo htmlspecialchars($tarea['titulo'], ENT_QUOTES); ?>', 
-                                   '<?php echo htmlspecialchars($tarea['descripcion'] ?? '', ENT_QUOTES); ?>'
-                               )">
+                            <a href="#" class="btn-icon" 
+                               onclick="editarTarea('<?php echo $tarea['id']; ?>', '<?php echo addslashes(htmlspecialchars($tarea['titulo'])); ?>', '<?php echo addslashes(htmlspecialchars($tarea['descripcion'] ?? '')); ?>')">
                                <i class="fas fa-pencil-alt"></i>
                             </a>
 
@@ -82,8 +82,6 @@ include __DIR__ . '/header.php';
                                onclick="return confirm('¿Arrancar esta nota del tablero?');">
                                <i class="fas fa-trash-alt"></i>
                             </a>
-                            
-                            <a href="#" class="btn-icon check"><i class="fas fa-check"></i></a>
                         </div>
                     </div>
                 </div>
@@ -91,57 +89,45 @@ include __DIR__ . '/header.php';
             <?php endforeach; ?>
         <?php else: ?>
             <div class="empty-message">
-                <i class="fas fa-sticky-note" style="font-size: 3rem; margin-bottom: 10px; display:block;"></i>
-                <p>El tablero está vacío.<br>¡Haz clic en "Nueva Nota" para empezar!</p>
+                <p>El tablero está vacío. ¡Crea tu primera nota!</p>
             </div>
         <?php endif; ?>
     </div>
-
 </div>
 
 <script>
-    // 1. ABRIR PARA CREAR
+    // --- LÓGICA JS (No cambia nada de lo que ya tenías) ---
     function nuevaTarea() {
-        document.getElementById('formTarea').reset(); // Limpiar campos
-        document.getElementById('formAction').value = 'crear'; // Modo crear
+        document.getElementById('formTarea').reset();
+        document.getElementById('formAction').value = 'crear';
         document.getElementById('taskId').value = ''; 
-        document.getElementById('btnSubmit').innerText = 'Pegar Nota'; // Texto botón
-        document.getElementById('form-card').style.display = 'block'; // Mostrar
+        document.getElementById('btnSubmit').innerText = 'Pegar Nota';
+        document.getElementById('form-card').style.display = 'flex'; 
         document.getElementById('taskTitle').focus();
     }
 
-    // 2. ABRIR PARA EDITAR (Recibe datos de la tarea)
     function editarTarea(id, titulo, descripcion) {
         document.getElementById('taskId').value = id;
         document.getElementById('taskTitle').value = titulo;
         document.getElementById('taskDesc').value = descripcion;
-        
-        document.getElementById('formAction').value = 'editar'; // Modo editar
-        document.getElementById('btnSubmit').innerText = 'Guardar Cambios'; // Texto botón
-        
-        document.getElementById('form-card').style.display = 'block'; // Mostrar
+        document.getElementById('formAction').value = 'editar';
+        document.getElementById('btnSubmit').innerText = 'Guardar Cambios';
+        document.getElementById('form-card').style.display = 'flex';
     }
 
-    // 3. CERRAR FORMULARIO
     function cerrarFormulario() {
         document.getElementById('form-card').style.display = 'none';
     }
 
-    // 4. FILTRAR TAREAS (BUSCADOR)
     function filtrarTareas() {
         let input = document.getElementById('buscador');
         let filter = input.value.toLowerCase();
         let notas = document.getElementsByClassName('postit');
 
         for (let i = 0; i < notas.length; i++) {
-            let titulo = notas[i].getElementsByClassName('note-title')[0].innerText;
-            let cuerpo = notas[i].getElementsByClassName('note-body')[0].innerText;
-            
-            if (titulo.toLowerCase().includes(filter) || cuerpo.toLowerCase().includes(filter)) {
-                notas[i].style.display = ""; 
-            } else {
-                notas[i].style.display = "none"; 
-            }
+            let titulo = notas[i].querySelector('.note-title').innerText.toLowerCase();
+            let cuerpo = notas[i].querySelector('.note-body').innerText.toLowerCase();
+            notas[i].style.display = (titulo.includes(filter) || cuerpo.includes(filter)) ? "" : "none";
         }
     }
 </script>
