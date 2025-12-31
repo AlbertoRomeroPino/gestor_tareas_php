@@ -44,14 +44,15 @@ class Tareas
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function findByEstado($estado)
+   /* Futura mejoras 
+   public function findByEstado($estado)
     {
         $sql = "SELECT * FROM tareas WHERE estado = :estado";
         $stmt = $this->db->prepare($sql);
 
         $stmt->execute([':estado' => $estado]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    }*/
 
     public function createTarea($titulo, $estado, $descripcion, $usuario_id)
     {

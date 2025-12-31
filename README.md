@@ -25,13 +25,14 @@ CREATE TABLE IF NOT EXISTS usuarios (
         password TEXT NOT NULL
     )
 CREATE TABLE IF NOT EXISTS tareas (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        titulo TEXT NOT NULL,
-        descripcion TEXT NOT NULL,
-        estado TEXT DEFAULT 'pendiente',
-        usuario_id INTEGER,
-        FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
-    )
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    titulo TEXT NOT NULL,
+    descripcion TEXT NOT NULL,
+    estado TEXT DEFAULT 'pendiente',
+    usuario_id INTEGER,
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+)
 ```
 
 Estas creaciones de entidades para la base de datos las insertamos en variables con el nombre de `$sqlUsuarios` y `$sqlTareas`
@@ -114,21 +115,25 @@ Esto de todas formas en un proyecto serio no se debería hacer porque sería una
 # ./Config/Database.php
 
 ```php
- try {
-            $pdo = new PDO('sqlite', $db);
-            $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+public static function conectar()
+    {
+        $db = __DIR__ . '/../data/gestor_tareas.db';
 
+        try {
+            $pdo = new PDO('sqlite:'. $db);
+            $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+     
             return $pdo;
         } catch (PDOException $excepcion) {
             die("Error fatal de conexión: " . $excepcion->getMessage());
         }
+    }
 ```
 
 Esta clase gestiona la conexión a la base de datos SQLite utilizando PDO. Se implementa un bloque `try-catch` para el manejo robusto de excepciones y se configura la instancia con `PDO::FETCH_ASSOC` para obtener los resultados como arrays asociativos. El método retorna el objeto de conexión (`$pdo`) listo para su uso.
 
 # ./Models/Tarea.php
-
-La entidad usuario es mas simple a esta lo unico que tiene nuevo es password_hash que es para encriptar la contraseña
 
 Esta sección aborda la arquitectura de la clase en tres niveles: atributos, funciones y una explicación práctica del manejo de consultas SQL.
 
@@ -147,13 +152,15 @@ Gestiona la información y operaciones de las tareas del tablero.
 * **`$descripcion`** : Texto extendido con los detalles de la actividad.
 * **`$estado`** : Indicador del flujo de trabajo (ej. 'pendiente', 'en proceso', 'completado').
 * **`$usuario_id`** : Clave foránea que vincula la tarea con su creador/propietario (relación con la entidad `User`).
+* **`$fecha_creacion`**: fecha en la que se creo la tarea
 
 ### Parte 2 Funciones
 
-* **`findAll`** : Recupera el listado completo de todas las tareas registradas en la base de datos.
+* **`__construct`**: El constructor de la clase
+* **`findAllByUserId`** : Recupera el listado completo de todas las tareas registradas en la base de datos.
 * **`findByID`** : Obtiene los detalles de una tarea específica buscando por su identificador único (Primary Key).
 * **`findByTitulo`** : Realiza una búsqueda de tareas cuyo título coincida parcial o totalmente con el término proporcionado.
-* **`findByEstado`** : Filtra y devuelve las tareas que corresponden a un estado específico (ej. 'pendiente', 'en proceso').
+* **`findByEstado`** : Filtra y devuelve las tareas que corresponden a un estado específico ('pendiente', 'realizado').
 * **`createTarea`** : Inserta un nuevo registro de tarea en la base de datos con la información suministrada.
 * **`updateTarea`** : Modifica los datos (título, descripción, estado) de una tarea existente identificada por su ID.
 * **`deleteTarea`** : Elimina permanentemente el registro de una tarea específica de la base de datos.
@@ -191,7 +198,26 @@ Los pasos que **he realizado** para ejecutar un crear tarea:
 4. **Ejecución y Vinculación:** Se llama a `execute()` pasando un array que vincula los valores reales con los marcadores definidos anteriormente.
 5. **Retorno de Estado:** La función finaliza devolviendo `true` si la inserción tuvo éxito o `false` (y registrando el error) si falló.
 
-# ./controller/AuthController.php
+# ./Models/User.php
+
+### Parte 1 Atributos
+
+**Infraestructura**
+
+* **`$db`** : Instancia de la conexión a la base de datos (objeto `PDO`). Permite la ejecución de las consultas SQL.
+
+**Atributos de la Entidad**
+
+* `$id`: Identificador único numérico de la tarea (Primary Key).
+* `$username`: Nombre del usuario
+* `$password`: Contraseña del usuario
+
+### Parte 2 Funciones
+
+* `findByUsername`: Sirve principalmente para comprobar un usuario cuando es insertado en el login
+* `create`: Creamos un nuevo usuario
+
+# ./Controller/AuthController.php
 
 ```php
 session_start();
@@ -245,7 +271,7 @@ y despues de recibir todo creamos un nuevo usuario buscando desde el nombre de u
 
 Si el paso anterior no existiera el usuario daria un mensaje de error pero en cambio si existe el nombre de usuario y al mismo tiempo a puesto bien la contraseña entraria en el if.
 
-Una vez dentro de la primera comprobación almacenamos el id de usuario y el nombre de usuario para la sesion y por ultimo antes de entrar a la pagina comprueba que si esta a true remember cree una cookie para mantener almacenada la sesion de usuario para que se mantenga abierta durante 1 mes.
+Una vez dentro de la primera comprobación almacenamos el id de usuario y el nombre de usuario para la sesion y por ultimo antes de entrar a la pagina comprueba que si esta a true remember, crea una cookie para mantener almacenada la sesion de usuario para que se mantenga abierta durante 1 mes.
 
 **Logout**
 
@@ -280,10 +306,10 @@ public function checkCookie()
         // 2. No estás dentro, pero... ¿tienes la etiqueta "user_login"?
         if (isset($_COOKIE['user_login'])) {
             $username = $_COOKIE['user_login'];
-          
+    
             // Busco en la BD si ese usuario existe
             $user = $this->userModel->findByUsername($username);
-          
+    
             if ($user) {
                 // 3. ¡Bingo! Te restauro la sesión automáticamente
                 $_SESSION['user_id'] = $user['id'];
@@ -298,6 +324,29 @@ En esta función lo primero que realizamos es comprobar si esta ya hay una sesio
 El segundo if verifica si existe la cookie `user_login`. Si existe, recuperamos el nombre de usuario que hay dentro de ella y le pedimos al Modelo que busque en la Base de Datos los datos completos de ese usuario.
 
 El tercer if  lo que realiza es crear las sesiones o igualarlas para asi tener la información almacenada
+
+**Register**
+
+```php
+public function register($username, $password)
+    {
+        if ($this->userModel->create($username, $password)) {
+            header("Location: ../Views/auth/login.php?success=registrado");
+            exit();
+        } else {
+            header("Location: ../Views/auth/register.php?error=fallo_registro");
+            exit();
+        }
+    }
+```
+
+Primero recibe 2 cosas:
+
+`$username`: nombre de usuario para crear
+
+`$password` contraseña del usuario.
+
+Lo que se realiza en esta función es simple se hace un if con la función de create de userModel y luego si da true de haber podido crearse te debuelve que se a creado en cambio si no se a podido crear da fallo
 
 **Router Artesanal**
 
@@ -339,7 +388,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
     }
 ```
 
-Como el formulario envia todo junto, PHP necesita saber qué botón pulsaste 
+Como el formulario envia todo junto, PHP necesita saber qué botón pulsaste
 
 * Si el valor es `'login'`, llama a la función de entrar.
 * Si el valor es `'register'`, llama a la función de registrarse.
@@ -353,19 +402,4 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
 
 Con este codigo lo unico que realiza es un logout
 
-
-
-# Views/auth/login
-
-```php
-<?php if (isset($_GET['error'])): ?>
-                    <span class="error-text">
-                        <?php
-                            if ($_GET['error'] == 'credenciales_incorrectas') echo "Datos inválidos";
-                            if ($_GET['error'] == 'usuario_existe') echo "El usuario ya existe";
-                        ?>
-                    </span>
-                <?php endif; ?>
-```
-
-PHP revisa la URL del navegador. Si el controlador te redirigió con algo como `?error=usuario_existe`, este apartado se activa.
+# ./Controller/TareaController.php

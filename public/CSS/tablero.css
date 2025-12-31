@@ -76,7 +76,7 @@
     
     /* Efecto papel */
     transform: rotate(-1deg);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
 }
 
 /* Notas Pares (Azuladas y rotadas al otro lado) */
@@ -200,3 +200,4 @@
     cursor: pointer;
     font-weight: bold;
 }
+

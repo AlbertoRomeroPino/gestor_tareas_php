@@ -32,17 +32,6 @@ class AuthController
         }
     }
 
-    public function register($username, $password)
-    {
-        if ($this->userModel->create($username, $password)) {
-            header("Location: ../Views/auth/login.php?success=registrado");
-            exit();
-        } else {
-            header("Location: ../Views/auth/register.php?error=fallo_registro");
-            exit();
-        }
-    }
-
     public function logout()
     {
         session_destroy();
@@ -69,6 +58,16 @@ class AuthController
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
             }
+        }
+    }
+    public function register($username, $password)
+    {
+        if ($this->userModel->create($username, $password)) {
+            header("Location: ../Views/auth/login.php?success=registrado");
+            exit();
+        } else {
+            header("Location: ../Views/auth/register.php?error=fallo_registro");
+            exit();
         }
     }
 }
