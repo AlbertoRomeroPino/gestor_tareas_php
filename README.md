@@ -720,3 +720,73 @@ El código hace una comparación simple entre **"Quién soy yo"** y  **"A quién
 Si eliminas este bloque, el archivo se convierte en un simple almacén de código.
 
 Cuando intentes enviar datos para guardar o borrar, el navegador abrirá el archivo, leerá el código y **terminará sin hacer nada** (pantalla en blanco), porque nadie dio la orden de  **"Empezar a trabajar"** .
+
+# ./index.php
+
+Este archivo es el **punto de entrada principal** de la aplicación. Actúa como un conserje que recibe al usuario, verifica si tiene permiso para pasar y lo envía a la habitación correcta (Login o Tablero).
+
+### Infraestructura del Archivo
+
+| **Componente**          | **Función**                                                |
+| ----------------------------- | ----------------------------------------------------------------- |
+| **`session_start()`** | Activa la memoria del servidor para reconocer al usuario.         |
+| **`AuthController`**  | Clase encargada de toda la lógica de seguridad y acceso.         |
+| **`checkCookie()`**   | Método que intenta recuperar sesiones antiguas mediante cookies. |
+
+---
+
+### Explicación Paso a Paso
+
+He diseñado la lógica de este archivo en 4 pasos críticos para asegurar que nadie entre al sistema sin permiso:
+
+#### Paso 1: Gestión de Sesión
+
+**PHP**
+
+```
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+```
+
+Lo primero que hacemos es comprobar si ya existe una sesión. Si el servidor no tiene una iniciada, la creamos. Sin esto, no podríamos saber quién es el usuario que acaba de entrar a nuestra web.
+
+#### Paso 2: Importación y Control
+
+**PHP**
+
+```
+require_once __DIR__ . '/Controllers/AuthController.php';
+$auth = new AuthController();
+```
+
+Importamos el controlador de autenticación usando rutas absolutas (`__DIR__`). Esto es una **buena práctica** porque evita que el archivo falle si movemos carpetas. Inmediatamente después, instanciamos el controlador para poder usar sus herramientas.
+
+#### Paso 3: El "Auto-Login" (Cookies)
+
+**PHP**
+
+```
+$auth->checkCookie();
+```
+
+Antes de decidir a dónde enviar al usuario, llamamos a `checkCookie()`. Esto revisa si el usuario marcó la casilla "Recordarme" en el pasado. Si la cookie existe, el sistema le devolverá su sesión de forma invisible y automática.
+
+#### Paso 4: El Guardia de Tráfico (Redirección)
+
+**PHP**
+
+```
+if (isset($_SESSION['user_id'])) {
+    header("Location: Views/layouts/tablero.php");
+} else {
+    header("Location: Views/auth/login.php");
+}
+exit();
+```
+
+Finalmente, realizamos la comprobación definitiva:
+
+1. **¿Hay un ID de usuario en la sesión?** Si la respuesta es sí (ya sea porque acaba de loguearse o por la cookie), lo mandamos directamente al  **Tablero** .
+2. **¿No hay sesión?** Entonces lo mandamos al **Login** para que se identifique.
+3. **`exit()`** : Usamos esta función para asegurar que el servidor deje de trabajar inmediatamente después de enviar la orden de redirección.
