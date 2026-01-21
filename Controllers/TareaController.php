@@ -1,4 +1,4 @@
- <?php
+<?php
 // 1. Iniciar sesión si no está iniciada
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -7,13 +7,15 @@ if (session_status() === PHP_SESSION_NONE) {
 // 2. Importar el modelo
 require_once __DIR__ . '/../Models/Tarea.php';
 
-class TareasController {
+class TareasController
+{
 
     // Propiedad privada para el modelo
     private $tareaModel;
 
-    public function __construct() {
-        
+    public function __construct()
+    {
+
         // Inicializamos el modelo una sola vez
         $this->tareaModel = new Tareas();
 
@@ -21,22 +23,21 @@ class TareasController {
 
         // A. RUTAS POST (Formularios: Crear, Editar)
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            
+
             if (isset($_POST['action'])) {
                 if ($_POST['action'] === 'crear') {
                     $this->agregar();
-                }
-                elseif ($_POST['action'] === 'editar') {
+                } elseif ($_POST['action'] === 'editar') {
                     $this->actualizar($_POST['id']);
                 }
             }
 
-        // B. RUTAS GET (Enlaces: Eliminar, Cambiar Estado)
+            // B. RUTAS GET (Enlaces: Eliminar, Cambiar Estado)
         } elseif (isset($_GET['action'])) {
-            
+
             // Verificamos que venga un ID para las acciones que lo requieren
             if (isset($_GET['id'])) {
-                
+
                 // 1. Eliminar
                 if ($_GET['action'] === 'eliminar') {
                     $this->eliminar($_GET['id']);
@@ -55,12 +56,14 @@ class TareasController {
     // --- MÉTODOS DE LÓGICA ---
 
     // 1. LISTAR TAREAS (INDEX)
-    public function index() {
+    public function index()
+    {
         return $this->tareaModel->findAllByUserId($_SESSION['user_id']);
     }
 
     // 2. AGREGAR TAREA
-    public function agregar() {
+    public function agregar()
+    {
         if (empty($_POST['titulo'])) {
             header("Location: ../Views/layouts/tablero.php?error=titulo_vacio");
             exit();
@@ -68,7 +71,7 @@ class TareasController {
 
         $titulo = trim($_POST['titulo']);
         $descripcion = isset($_POST['descripcion']) ? trim($_POST['descripcion']) : null;
-        $estado = 0; 
+        $estado = 0;
         $usuario_id = $_SESSION['user_id'];
 
         $this->tareaModel->createTarea($titulo, $estado, $descripcion, $usuario_id);
@@ -78,7 +81,8 @@ class TareasController {
     }
 
     // 3. ELIMINAR TAREA
-    public function eliminar($id) {
+    public function eliminar($id)
+    {
         $tarea = $this->tareaModel->findById($id);
 
         if ($tarea && $tarea['usuario_id'] == $_SESSION['user_id']) {
@@ -91,14 +95,15 @@ class TareasController {
     }
 
     // 4. ACTUALIZAR TAREA (Texto y Descripción)
-    public function actualizar($id) {
+    public function actualizar($id)
+    {
         $tarea = $this->tareaModel->findById($id);
 
         if ($tarea && $tarea['usuario_id'] == $_SESSION['user_id']) {
             $titulo = $_POST['titulo'];
             $descripcion = $_POST['descripcion'];
             // Ojo: aquí mantenemos el estado que ya tenía, no lo reseteamos
-            $estado = $tarea['estado']; 
+            $estado = $tarea['estado'];
 
             $this->tareaModel->updateTarea($id, $titulo, $estado, $descripcion);
             header("Location: ../Views/layouts/tablero.php?msg=tarea_actualizada");
@@ -109,14 +114,15 @@ class TareasController {
     }
 
     // 5. CAMBIAR ESTADO (Check/Uncheck) - LA FUNCIÓN NUEVA
-    public function cambiarEstado($id, $nuevoEstado) {
+    public function cambiarEstado($id, $nuevoEstado)
+    {
         // 1. Buscamos la tarea para asegurar que es del usuario y obtener sus datos actuales
         $tarea = $this->tareaModel->findById($id);
 
         if ($tarea && $tarea['usuario_id'] == $_SESSION['user_id']) {
             // 2. Actualizamos SOLO el estado, manteniendo el título y descripción originales
             $this->tareaModel->updateTarea($id, $tarea['titulo'], $nuevoEstado, $tarea['descripcion']);
-            
+
             // 3. Redirigimos al tablero
             header("Location: ../Views/layouts/tablero.php");
         } else {

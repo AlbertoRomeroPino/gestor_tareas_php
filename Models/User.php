@@ -6,10 +6,6 @@ class User
 {
     private $db;
 
-    private $id;
-    private $username;
-    private $password;
-
     public function __construct()
     {
         $this->db = Database::conectar();

@@ -588,7 +588,7 @@ public function eliminar($id) {
 
     // 2. Verificación de seguridad (Propiedad)
     if ($tarea && $tarea['usuario_id'] == $_SESSION['user_id']) {
-      
+    
         // 3. Borrado físico
         $this->tareaModel->deleteTarea($id);
         header("Location: ../Views/layouts/tablero.php?msg=tarea_eliminada");
@@ -623,11 +623,11 @@ public function actualizar($id) {
 
     // 2. Verificación de seguridad (Propiedad)
     if ($tarea && $tarea['usuario_id'] == $_SESSION['user_id']) {
-      
+    
         // 3. Recogida de nuevos datos
         $titulo = $_POST['titulo'];
         $descripcion = $_POST['descripcion'];
-      
+    
         // 4. Preservar el estado anterior
         $estado = $tarea['estado']; 
 
@@ -663,11 +663,11 @@ public function cambiarEstado($id, $nuevoEstado) {
 
     // 2. Verificación de seguridad
     if ($tarea && $tarea['usuario_id'] == $_SESSION['user_id']) {
-      
+    
         // 3. Actualización "Quirúrgica"
         // Mantenemos el título y descripción que YA tenía, solo cambiamos el estado.
         $this->tareaModel->updateTarea($id, $tarea['titulo'], $nuevoEstado, $tarea['descripcion']);
-      
+    
         header("Location: ../Views/layouts/tablero.php");
     } else {
         header("Location: ../Views/layouts/tablero.php?error=acceso_denegado");

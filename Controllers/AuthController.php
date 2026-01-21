@@ -12,6 +12,13 @@ class AuthController
         $this->userModel = new User();
     }
 
+    /**
+     * Inicia sesión en el sistema.
+     * @param mixed $username nombre de usuario
+     * @param mixed $password contraseña
+     * @param mixed $remember recordar sesión
+     * @return never 
+     */
     public function login($username, $password, $remember = false)
     {
         $user = $this->userModel->findByUsername($username);
@@ -32,6 +39,10 @@ class AuthController
         }
     }
 
+    /**
+     * Salir de la sesion
+     * @return never
+     */
     public function logout()
     {
         session_destroy();
@@ -44,6 +55,10 @@ class AuthController
         exit();
     }
 
+    /**
+     * Comprobamos la Cookie
+     * @return void
+     */
     public function checkCookie()
     {
         if (isset($_SESSION['user_id'])) {
@@ -60,6 +75,13 @@ class AuthController
             }
         }
     }
+
+    /**
+     * Registrar a un nuevo usuario
+     * @param mixed $username nombre de usuario
+     * @param mixed $password contraseña
+     * @return never
+     */
     public function register($username, $password)
     {
         if ($this->userModel->create($username, $password)) {
@@ -72,6 +94,9 @@ class AuthController
     }
 }
 
+/**
+ * Manejo de solicitudes
+ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $auth = new AuthController();
 
@@ -86,6 +111,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+/**
+ * Manejo de cierre de sesión
+ */
 if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     $auth = new AuthController();
     $auth->logout();

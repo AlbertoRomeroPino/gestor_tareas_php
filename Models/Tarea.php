@@ -4,12 +4,7 @@ require_once __DIR__ . '/../Config/Database.php';
 class Tareas
 {
     private $db;
-    private $id;
-    private $titulo;
-    private $descripcion;
-    private $estado;
-    private $usuario_id;
-    private $fecha_creacion;
+    
 
     public function __construct()
     {

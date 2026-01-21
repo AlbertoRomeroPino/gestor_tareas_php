@@ -1,9 +1,13 @@
 <?php
+
 try {
 
   $db = new PDO('sqlite:' . __DIR__ . '/data/gestor_tareas.db');
   $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+  /**
+   * Crear tabla usuarios y tareas si no existen aún.
+   */
   $sqlUsuarios = "CREATE TABLE IF NOT EXISTS usuarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL UNIQUE,
