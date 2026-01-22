@@ -1,3 +1,7 @@
+# Video Explicativo
+
+[Video](https://drive.google.com/file/d/1HLVUGlhELlyCiomvQi54J96pvBmKCIQQ/view?usp=sharing)
+
 # ./create_db
 
 La creación de la base de datos la he hecho con PDO y la he almacenado en /data con el nombre gestor_tareas.db. También la base de datos utilizada va a ser SQlite.
